@@ -84,7 +84,6 @@ export async function getGradesFromBGU(year: number, semester: number, departmen
 
     if (response.status === 200) {
         console.log('Request successful');
-        savePdfFile(response.data, `${year}-${semester}_${department}-${degree}-${courseNumber}`); // remove this before deployment
         return response.data;
     }
 
