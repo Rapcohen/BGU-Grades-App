@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
-    "build": "npm run tsc",
-    "tsc": "tsc -p ."
+    "build": "tsc -p .",
+    "tsc": "./node_modules/typescript/bin/tsc"
   },
   "keywords": [],
   "author": "",
