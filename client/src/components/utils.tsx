@@ -6,9 +6,7 @@ export const years: string[] = Array.from(new Array(10), (_, i) =>
 
 export const semesters = ['1', '2', '3'];
 
-export interface Props {
-    onSubmit: (values: GradeFormValues) => Promise<void>;
-}
+export interface Props {}
 
 export const parseCourseId = (courseId: string): string =>
     courseId.trim().replace(/\./g, '-');
