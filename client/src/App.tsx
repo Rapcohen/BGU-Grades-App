@@ -1,45 +1,48 @@
-import React from "react";
-import { GradeForm } from "./components/GradeForm";
-import GradeFormValues from "./interfaces/GradeFormValues";
-import { Grid } from "@mui/material";
-import "./App.css";
+import React from 'react';
+import { GradeForm } from './components/GradeForm';
+import GradeFormValues from './interfaces/GradeFormValues';
+import { Grid } from '@mui/material';
+import './App.css';
+import { parseCourseId } from './components/utils';
 
 interface AppProps {}
 
-async function getGradesFromBGU(values: GradeFormValues): Promise<void> {
-	try {
-		const requestUrl = `/grades/${values.year}/${values.semester}/${values.courseId}`;
-		const response: Response = await fetch(requestUrl);
+const App: React.FC<AppProps> = () => {
+    const handleSubmit = async (values: GradeFormValues) => {
+        const grades = await getGrades(values);
+        displayGrades(grades);
+    };
 
-		if (response.ok) {
-			const pdfData: string = await response.text();
-			const blob: Blob = new Blob([pdfData], { type: "application/pdf" });
-			const url: string = URL.createObjectURL(blob);
-			window.open(url, "_blank");
-			return;
-		}
-	} catch (error) {
-		console.log(error);
-	}
+    return (
+        <Grid className='gridContainer'>
+            <Grid item textAlign='center'>
+                <h1>BGU Grades</h1>
+            </Grid>
+            <Grid item>
+                <GradeForm onSubmit={handleSubmit} />
+            </Grid>
+        </Grid>
+    );
+};
+
+async function getGrades(values: GradeFormValues): Promise<string> {
+    const requestUrl = `/grades/${values.year}/${
+        values.semester
+    }/${parseCourseId(values.courseId)}`;
+    try {
+        const response = await fetch(requestUrl);
+        // TODO: check what happens if response is not ok
+        return await response.text();
+    } catch (error) {
+        console.error(`Error fetching grades: ${error}`);
+        throw error;
+    }
 }
 
-const App: React.FC<AppProps> = () => {
-	return (
-		<Grid
-			container
-			direction="column"
-			alignContent="center"
-			justifyContent="center"
-			style={{ height: "100vh" }}
-		>
-			<Grid item textAlign="center">
-				<h1>BGU Grades</h1>
-			</Grid>
-			<Grid item>
-				<GradeForm onSubmit={getGradesFromBGU} />
-			</Grid>
-		</Grid>
-	);
-};
+function displayGrades(grades: string) {
+    const blob: Blob = new Blob([grades], { type: 'application/pdf' });
+    const url: string = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+}
 
 export default App;
