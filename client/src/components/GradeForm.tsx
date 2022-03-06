@@ -30,7 +30,7 @@ function validateForm(values: GradeFormValues) {
     return errors;
 }
 
-export const GradeForm: React.FC<Props> = ({ onSubmit }) => {
+export const GradeForm: React.FC<Props> = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const onFormSubmit = async (values: GradeFormValues) => {
