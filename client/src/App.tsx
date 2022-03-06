@@ -2,7 +2,6 @@ import React from "react";
 import { GradeForm } from "./components/GradeForm";
 import { Grid } from "@mui/material";
 import "./App.css";
-import { getGradesFromBGU } from "./api";
 
 interface AppProps {}
 
