@@ -41,6 +41,7 @@ export async function getGradesFromBGU(
         },
 
         data: getRequestBody(gradesRequest),
+        timeout: 20000,
     };
 
     console.log('Sending request to BGU server...');
