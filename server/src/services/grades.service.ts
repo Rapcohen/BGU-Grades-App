@@ -1,22 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import qs from 'qs';
 import fs from 'fs';
-
-const constants = {
-    BGU_SERVER_URL: 'https://reports4u22.bgu.ac.il/reports/rwservlet',
-    SERVER: 'aristo4stu419c',
-    REPORT: 'SCRR016w',
-    P_KEY: '1', // this key has no significance
-    OUT_INSTITUTION: '0',
-    GRADE: '5',
-    LIST_GROUP: '*@',
-    P_FOR_STUDENT: '1',
-    ENV_ID: 'AM',
-    CMD_KEY: 'prod',
-    DES_TYPE: 'cache',
-    DES_FORMAT: 'pdf',
-    ACCESSIBLE: 'yes'
-};
+import { constants, GradesRequest } from './types';
 
 /**
  * Saves the pdf file in the local file system.
@@ -41,46 +26,26 @@ function savePdfFile(pdfData: string, fileName: string) {
 
 /**
  * Retrieves the grades pdf data from the BGU server.
- * @param year
- * @param semester 
- * @param department 
- * @param degree 
- * @param courseNumber 
  * @returns the grades pdf data for the given course.
  * @throws {Error} if the request failed.
+ * @param gradesRequest
  */
-export async function getGradesFromBGU(year: number, semester: number, department: number, degree: number, courseNumber: number): Promise<string> {
-    const body: string = qs.stringify({
-        server: constants.SERVER,
-        report: constants.REPORT,
-        p_key: constants.P_KEY,
-        p_year: year,
-        p_semester: semester,
-        out_institution: constants.OUT_INSTITUTION,
-        grade: constants.GRADE,
-        list_department: `*${department}@`,
-        list_degree_level: `*${degree}@`,
-        list_course: `*${courseNumber}@`,
-        LIST_GROUP: constants.LIST_GROUP,
-        P_FOR_STUDENT: constants.P_FOR_STUDENT,
-        envid: constants.ENV_ID,
-        cmdkey: constants.CMD_KEY,
-        destype: constants.DES_TYPE,
-        desformat: constants.DES_FORMAT,
-        accessible: constants.ACCESSIBLE
-    });
-
-    const config: AxiosRequestConfig = {
+export async function getGradesFromBGU(
+    gradesRequest: GradesRequest
+): Promise<string> {
+    const request: AxiosRequestConfig = {
         method: 'POST',
         url: constants.BGU_SERVER_URL,
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        data: body
+
+        data: getRequestBody(gradesRequest),
+        timeout: 20000,
     };
 
-    console.log("Sending request to BGU server...");
-    const response: AxiosResponse = await axios(config);
+    console.log('Sending request to BGU server...');
+    const response: AxiosResponse = await axios(request);
 
     if (response.status === 200) {
         console.log('Request successful');
@@ -88,4 +53,26 @@ export async function getGradesFromBGU(year: number, semester: number, departmen
     }
 
     throw new Error('Failed to fetch grades from BGU server');
+}
+
+function getRequestBody(gradesRequest: GradesRequest): string {
+    return qs.stringify({
+        server: constants.SERVER,
+        report: constants.REPORT,
+        p_key: constants.P_KEY,
+        p_year: gradesRequest.year,
+        p_semester: gradesRequest.semester,
+        out_institution: constants.OUT_INSTITUTION,
+        grade: constants.GRADE,
+        list_department: `*${gradesRequest.department}@`,
+        list_degree_level: `*${gradesRequest.degree}@`,
+        list_course: `*${gradesRequest.courseNumber}@`,
+        LIST_GROUP: constants.LIST_GROUP,
+        P_FOR_STUDENT: constants.P_FOR_STUDENT,
+        envid: constants.ENV_ID,
+        cmdkey: constants.CMD_KEY,
+        destype: constants.DES_TYPE,
+        desformat: constants.DES_FORMAT,
+        accessible: constants.ACCESSIBLE,
+    });
 }
